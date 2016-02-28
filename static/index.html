@@ -40,6 +40,7 @@ function sendJSONXMLHTTPRequest(url, objects, callback) {
                 if (xhr.status==200) {
                     //XXX: parse some JSON from the request!
                     //XXX: Pass the data to the callback!
+                    callback(JSON.parse(xhr.responseText));
                 }
             } 
             catch(e) {
@@ -50,6 +51,10 @@ function sendJSONXMLHTTPRequest(url, objects, callback) {
     //XXX: POST to a URL
     //XXX: set the mimetype and the accept headers!
     // Remember to use application/json !
+    xhr.open('POST',url);
+    xhr.setRequestHeader('Accept','application/json');
+    xhr.setRequestHeader('Content-Type','application/json');
+    xhr.send(JSON.stringify(objects));
 }
 
 
@@ -97,6 +102,17 @@ function renderFrame() {
         drawCircle(context,prepEntity(entity));
     }
 }
+//http://stackoverflow.com/questions/1484506/random-color-generator-in-javascript/2016/02/27
+function getRandomColor() {
+    var letters = '0123456789ABCDEF'.split('');
+    var color = '#';
+    for (var i = 0; i < 6; i++ ) {
+        color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
+}
+
+
 
 var drawNext = true;
 
@@ -247,21 +263,25 @@ mouse = (function() {
 // Add the application specific mouse listeners!
 //XXX: TODO Make these prettier!
 mouse.mousedowners.push(function(x,y,clicked,e) {
-    addEntityWithoutName({'x':x,'y':y,'colour':'blue'});
+    addEntityWithoutName({'x':x,'y':y,'colour':getRandomColor(),'radius':30});
 });
 
 mouse.mouseuppers.push(function(x,y,clicked,e) {
-    addEntityWithoutName({'x':x,'y':y,'colour':'red'});
+    addEntityWithoutName({'x':x,'y':y,'colour':getRandomColor(),'radius':30});
 });
 
 mouse.mousedraggers.push(function(x,y,clicked,e) {
-    addEntityWithoutName({'x':x,'y':y,'colour':'green',
+    addEntityWithoutName({'x':x,'y':y,'colour':getRandomColor(),
                           'radius':10});
 });
 
 
 function update() {
     //XXX: TODO Get the world from the webservice using a XMLHTTPRequest
+    sendJSONXMLHTTPRequest('/world','',function(draw_next)){
+        world = draw_next;
+        drawNextFrame();
+    });
     drawFrame();
 }
 
