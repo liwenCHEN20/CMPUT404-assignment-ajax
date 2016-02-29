@@ -37,7 +37,10 @@ function sendJSONXMLHTTPRequest(url, objects, callback) {
         if (xhr.readyState==4) {
             try {
                 if (xhr.status==200) {
-                    callback(JSON.parse(xhr.responseText));
+                    var somevar = JSON.parse(xhr.responseText);
+                    if (callback){
+                        callback(somevar);
+                    }
                     //XXX: parse some JSON from the request!
                     //XXX: Pass the data to the callback!
                 }
@@ -76,12 +79,12 @@ function drawCircle(context,entity) {
 
 //http://stackoverflow.com/questions/1484506/random-color-generator-in-javascript 2016/02/28 Anatoliy
 function getRandomColor() {
-    var letters = '0123456789ABCDEF'.split('');
+    var letters = ['0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'];
     var color = '#';
     for (var i = 0; i < 6; i++ ) {
         color += letters[Math.round(Math.random() * 15)];
     }
-    return String(color);
+    return color;
 }
 
 var radius_index=10;
@@ -118,6 +121,14 @@ function clearFrame() {
     }
 
 }
+
+
+//clear button cite from Landon wu's code 2016/02/28
+function clean_board(){
+    url = document.location.origin + "/clear";
+    sendJSONXMLHTTPRequest(url, null, null);
+}
+
 
 // This actually draws the frame
 function renderFrame() {
@@ -305,5 +316,8 @@ setInterval( update, 1000/30.0);
 
 
     </script>
+    <div style="z-index: 999; position: absolute; top: 5px; right: 2%">
+    <button onclick="clean_board()" >Clear</button>
+    </div>
 </body>
 </html>
