@@ -64,9 +64,9 @@ myWorld = World()
 def flask_post_json():
     '''Ah the joys of frameworks! They do so much work for you
        that they get in the way of sane operation!'''
-    if (request.json != None):
+    if (request.json is not None):
         return request.json
-    elif (request.data != None and request.data != ''):
+    elif (request.data is not None and request.data != ''):
         return json.loads(request.data)
     else:
         return json.loads(request.form.keys()[0])
@@ -80,10 +80,11 @@ def hello():
 def update(entity):
     '''update the entities via this interface'''
     data = flask_post_json()
+
     for item in data.keys():
-        myWorld.update(entity,item,data[item])
-    
+        myWorld.update(entity, item, data[item])
     return json.dumps(myWorld.get(entity))
+
 
 @app.route("/world", methods=['POST','GET'])    
 def world():

@@ -7,7 +7,6 @@
     <meta name="viewport" content="width=device-width" />
     <meta name="license" content="
         Copyright 2013 Abram Hindle
-        
         Licensed under the Apache License, Version 2.0 (the "License");
         you may not use this file except in compliance with the License.
         You may obtain a copy of the License at
@@ -38,9 +37,9 @@ function sendJSONXMLHTTPRequest(url, objects, callback) {
         if (xhr.readyState==4) {
             try {
                 if (xhr.status==200) {
+                    callback(JSON.parse(xhr.responseText));
                     //XXX: parse some JSON from the request!
                     //XXX: Pass the data to the callback!
-                    callback(JSON.parse(xhr.responseText));
                 }
             } 
             catch(e) {
@@ -48,13 +47,13 @@ function sendJSONXMLHTTPRequest(url, objects, callback) {
             }
         }
     };
-    //XXX: POST to a URL
-    //XXX: set the mimetype and the accept headers!
-    // Remember to use application/json !
     xhr.open('POST',url);
     xhr.setRequestHeader('Accept','application/json');
     xhr.setRequestHeader('Content-Type','application/json');
     xhr.send(JSON.stringify(objects));
+    //XXX: POST to a URL
+    //XXX: set the mimetype and the accept headers!
+    // Remember to use application/json !
 }
 
 
@@ -73,6 +72,32 @@ function drawCircle(context,entity) {
         arc(x, y, (entity["radius"])?entity["radius"]:50, 0, 2.0 * Math.PI, false);  
         stroke();                                
     }
+}
+
+//http://stackoverflow.com/questions/1484506/random-color-generator-in-javascript 2016/02/28 Anatoliy
+function getRandomColor() {
+    var letters = '0123456789ABCDEF'.split('');
+    var color = '#';
+    for (var i = 0; i < 6; i++ ) {
+        color += letters[Math.round(Math.random() * 15)];
+    }
+    return String(color);
+}
+
+var radius_index=10;
+
+
+
+function randomNumberRange()
+{
+    if (radius_index<59){
+    radius_index++;
+    }else{
+    radius_index=10;
+    }
+	radius=radius_index;
+    console.log(radius_index,radius);
+    return radius;
 }
 
 function prepEntity(entity) {
@@ -102,17 +127,6 @@ function renderFrame() {
         drawCircle(context,prepEntity(entity));
     }
 }
-//http://stackoverflow.com/questions/1484506/random-color-generator-in-javascript/2016/02/27
-function getRandomColor() {
-    var letters = '0123456789ABCDEF'.split('');
-    var color = '#';
-    for (var i = 0; i < 6; i++ ) {
-        color += letters[Math.floor(Math.random() * 16)];
-    }
-    return color;
-}
-
-
 
 var drawNext = true;
 
@@ -154,7 +168,7 @@ function addEntity(entity, data) {
     world[entity] = data;
     drawNextFrame(); // (but should we?)
     //XXX: Send a XHTML Request that updates the entity you just  modified!
-
+    sendJSONXMLHTTPRequest("/entity/"+ encodeURIComponent(entity),data,null);
 }
 
 var counter = 0;
@@ -272,13 +286,13 @@ mouse.mouseuppers.push(function(x,y,clicked,e) {
 
 mouse.mousedraggers.push(function(x,y,clicked,e) {
     addEntityWithoutName({'x':x,'y':y,'colour':getRandomColor(),
-                          'radius':10});
+                          'radius':randomNumberRange()});
 });
 
 
 function update() {
     //XXX: TODO Get the world from the webservice using a XMLHTTPRequest
-    sendJSONXMLHTTPRequest('/world','',function(draw_next)){
+    sendJSONXMLHTTPRequest('/world','',function(draw_next){
         world = draw_next;
         drawNextFrame();
     });
